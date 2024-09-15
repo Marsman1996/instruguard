@@ -1,0 +1,12 @@
+.DS_Store
+
+# ignore dependencies
+clang+llvm-6.0.0-x86_64-linux-gnu-ubuntu-16.04.tar.xz
+clang+llvm-6.0.0-x86_64-linux-gnu-ubuntu-16.04
+llvm-6
+ghidra_11.1.2_PUBLIC
+ghidra_11.1.2_PUBLIC_20240709.zip
+
+# ignore Ghidra project files
+*.rep
+*.gpr
