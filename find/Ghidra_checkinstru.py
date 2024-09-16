@@ -56,7 +56,8 @@ def check_instru():
     path_IL_log = prog.getExecutablePath() + "_instru.log"
     f_IL_log = open(path_IL_log, "wb")
 
-    text_seg = prog.getMemory().getBlock(".text")
+    prog_mem = prog.getMemory()
+    text_seg = prog_mem.getBlock(".text")
     if text_seg == None:
         return
 
@@ -65,8 +66,16 @@ def check_instru():
     text_seg_addrset = prog.getAddressFactory().getAddressSet(
         text_seg_start, text_seg_end
     )
+    int_text_seg_start = text_seg_start.getAddressableWordOffset() - base_addr
+    int_text_seg_end = text_seg_end.getAddressableWordOffset() - base_addr
 
-    dict_ins = {"list_ins": [], "list_MIL": [], "list_RIL": [], "list_edgeid": []}
+    dict_ins = {
+        "list_ins": [],
+        "list_MIL": [],
+        "list_RIL": [],
+        "list_edgeid": [],
+        "list_optins": [],
+    }
 
     # Iter functions in the .text segment
     listing = prog.getListing()
@@ -95,6 +104,24 @@ def check_instru():
                 seq_idx = 0
                 cnt_BB_IL = 0
                 list_BB_IL = []
+                prev_cnt = 0
+                succ_cnt = 0
+                # opt_BB_addr = 0
+
+            if unwanted_label_mark == False:
+                # opt_BB_addr = bb_start_addr
+                predecessors = bb.getSources(TaskMonitor.DUMMY)
+                while predecessors.hasNext():
+                    predecessor_bb_ref = predecessors.next()
+                    predecessor_bb = predecessor_bb_ref.getSourceBlock()
+                    # print(predecessor_bb_ref.getFlowType().getName())
+                    if (
+                        prog_mem.getBlock(predecessor_bb.getMinAddress()).getName()
+                        != ".text"
+                    ):
+                        continue
+                    prev_cnt += 1
+                # print("source of " + hex(int_bb_addr) + ": " + str(prev_cnt))
 
             for ins in listing.getInstructions(bb, True):
                 mnem = ins.getMnemonicString()
@@ -155,7 +182,25 @@ def check_instru():
                     # print(hex(int_bb_addr), cnt_ref)
                     unwanted_label_mark = True
                     continue
+            if unwanted_label_mark == False:
+                successors = bb.getDestinations(TaskMonitor.DUMMY)
+                while successors.hasNext():
+                    successor_bb_ref = successors.next()
+                    successor_bb = successor_bb_ref.getDestinationBlock()
+                    # print(successor_bb_ref.getFlowType().getName())
+                    if (
+                        prog_mem.getBlock(successor_bb.getMinAddress()).getName()
+                        != ".text"
+                    ):
+                        continue
+                    succ_cnt += 1
+                # print("dest of " + hex(int_bb_addr) + ": " + str(succ_cnt))
 
+            if prev_cnt == 1 and succ_cnt > 1:
+                if len(list_BB_IL) > 0:
+                    dict_ins["list_optins"].append([int_bb_addr, list_BB_IL[0]])
+                else:
+                    dict_ins["list_optins"].append([int_bb_addr, [0, 0, 0, 0]])
             if cnt_BB_IL == 0:  # MIL error
                 cnt_MIL += 1
                 f_IL_log.write(

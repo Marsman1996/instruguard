@@ -18,4 +18,11 @@ We could fix the instrumentation errors.
 AFL could trigger the crash within 1 min.
 ![fuzz+](fuzz+.png)
 
+## Optimize with our tool
+We could optimize some instrumentation.  
+<img src="./test--cfg.png" width = "300"/>
+
+AFL also could trigger the crash within 1 min.
+![fuzz-](fuzz-.png)
+
 <!-- ## How about other fuzzers? -->

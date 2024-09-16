@@ -10,3 +10,11 @@ ghidra_11.1.2_PUBLIC_20240709.zip
 # ignore Ghidra project files
 *.rep
 *.gpr
+
+# ignore IDA project files
+*.i64
+*.id0
+*.id1
+*.id2
+*.nam
+*.til

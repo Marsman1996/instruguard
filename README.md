@@ -38,9 +38,9 @@ To fix the program with instrumentation errors, you need to:
     $ source ./fix/retrowrite/retro/bin/activate
     $ ./fix/retrowrite/retrowrite example/test example/test.s
     ```
-2. Modify the assembly code with the instrumentation information we collect (i.e. `nm_instru.json`): 
+2. Modify the assembly code with the instrumentation information we collect (i.e. `test_instru.json`): 
    ```
-    $ python ./fix/fix_asm.py --asm_file example/test.s --instru_info test_instru.json -O example/test+.s
+    $ python ./fix/fix_asm.py --asm_file example/test.s --instru_info example/test_instru.json -O example/test+.s
    ```
 3. Compile the modified assembly code: 
     ```
